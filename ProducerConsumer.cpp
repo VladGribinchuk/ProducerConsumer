@@ -2,7 +2,14 @@
 #include <functional>
 #include <queue>
 #include <mutex>
+// how does it work??
+//smth
+//smth
+//smth
+//smth
+
 #include <condition_variable>
+//end commiting
 #include <sstream>
 
 // Logging without corruption.
