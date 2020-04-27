@@ -83,11 +83,10 @@ public:
 			for (int i = 0; i < itemCount; i++)
 			{
 				T item = produce();
-#pragma omp critical
-				{
-					buffer.push(item);
+				buffer.push(item);
+				
+				if (!buffer.empty())
 					item = buffer.pop();
-				}
 				consume(item);
 			}
 		}
