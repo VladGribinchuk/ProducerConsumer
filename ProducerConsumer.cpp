@@ -57,24 +57,22 @@ public:
 
 	void run(int itemCount)
 	{
-		#pragma omp parallel
+	#pragma omp parallel
 		{
-			for (int i = 0; i < itemCount; i++)
+			for (int i=0; i<itemCount; i++)
 			{
 				T item;
-				if (omp_get_thread_num() == 0)
+				if (omp_get_thread_num() == 0) 
 				{
-				item = produce();
-				buffer.push(item);
-				}
-				else
-				{
-				item = buffer.pop();
-				consume(item);
+					item = produce();
+					buffer.push(item);
 				}
 				
+						if (!buffer.empty() && omp_get_thread_num()!=0) {
+							item = buffer.pop();
+							consume(item);
+						}
 			}
-			
 		}
 	}
 
