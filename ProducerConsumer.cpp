@@ -57,20 +57,31 @@ public:
 
 	void run(int itemCount)
 	{
-	#pragma omp parallel
+	#pragma omp parallel shared(itemCount)
 		{
-			for (int i=0; i<itemCount; i++)
+			int num = itemCount;
+			while(itemCount>0)
 			{
 				T item;
-				if (omp_get_thread_num() == 0) 
+				if (omp_get_thread_num() == 0 && num >0 )
 				{
 					item = produce();
 					buffer.push(item);
+					num--;
 				}
-				
-						if (!buffer.empty() && omp_get_thread_num()!=0) {
-							item = buffer.pop();
-							consume(item);
+						if (omp_get_thread_num()!=0) {
+							while (itemCount>0)
+							{
+								if (buffer.empty())
+									continue;
+								else
+								{
+									item = buffer.pop();
+									consume(item);
+									itemCount--;
+									break;
+								}
+							}
 						}
 			}
 		}
