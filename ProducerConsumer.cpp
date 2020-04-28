@@ -4,6 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <sstream>
+#include <omp.h>
 
 // Logging without corruption.
 // Supposed to be used in a multi-threading environment.
@@ -56,13 +57,33 @@ public:
 
 	void run(int itemCount)
 	{
-		while (itemCount-->0)
+	#pragma omp parallel shared(itemCount)
 		{
-			T item = produce();
-			buffer.push(item);
-
-			item = buffer.pop();
-			consume(item);
+			int num = itemCount;
+			while(itemCount>0)
+			{
+				T item;
+				if (omp_get_thread_num() == 0 && num >0 )
+				{
+					item = produce();
+					buffer.push(item);
+					num--;
+				}
+						if (omp_get_thread_num()!=0) {
+							while (itemCount>0)
+							{
+								if (buffer.empty())
+									continue;
+								else
+								{
+									item = buffer.pop();
+									consume(item);
+									itemCount--;
+									break;
+								}
+							}
+						}
+			}
 		}
 	}
 
